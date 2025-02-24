@@ -57,12 +57,12 @@ const clearForm = () => {
 
 const generateId = () => +new Date();
 
-const generateBookObject = (id, title, author, year, isCompleted) => ({
+const generateBookObject = (id, title, author, year, isComplete) => ({
   id,
   title,
   author,
-  year,
-  isCompleted,
+  year: parseInt(year),
+  isComplete,
 });
 
 document.addEventListener(RENDER_EVENT, () => {
@@ -71,7 +71,7 @@ document.addEventListener(RENDER_EVENT, () => {
 
   books.forEach((book) => {
     const bookElement = createBookElement(book);
-    (book.isCompleted ? completeBookList : incompleteBookList).append(
+    (book.isComplete ? completeBookList : incompleteBookList).append(
       bookElement
     );
   });
@@ -90,17 +90,18 @@ const addBook = () => {
   saveData();
 };
 
-const createBookElement = ({ id, title, author, year, isCompleted }) => {
+const createBookElement = ({ id, title, author, year, isComplete }) => {
   const bookContainer = document.createElement("div");
   bookContainer.classList.add("book-item");
   bookContainer.setAttribute("data-bookid", id);
+  bookContainer.setAttribute("data-testid", "bookItem");
   bookContainer.innerHTML = `
     <h3 data-testid="bookItemTitle">${title}</h3>
     <p data-testid="bookItemAuthor">Penulis: ${author}</p>
     <p data-testid="bookItemYear">Tahun: ${year}</p>
     <div>
       <button data-testid="bookItemIsCompleteButton">${
-        isCompleted ? "Belum selesai dibaca" : "Selesai dibaca"
+        isComplete ? "Belum selesai dibaca" : "Selesai dibaca"
       }</button>
       <button data-testid="bookItemDeleteButton">Hapus Buku</button>
       <button data-testid="bookItemEditButton">Edit Buku</button>
@@ -123,7 +124,7 @@ const createBookElement = ({ id, title, author, year, isCompleted }) => {
 const toggleBookCompletion = (bookId) => {
   const book = findBook(bookId);
   if (!book) return;
-  book.isCompleted = !book.isCompleted;
+  book.isComplete = !book.isComplete;
   document.dispatchEvent(new Event(RENDER_EVENT));
   saveData();
 };
@@ -136,15 +137,17 @@ const editBook = (bookId) => {
   document.getElementById("bookFormTitle").value = book.title;
   document.getElementById("bookFormAuthor").value = book.author;
   document.getElementById("bookFormYear").value = book.year;
-  document.getElementById("bookFormIsComplete").checked = book.isCompleted;
+  document.getElementById("bookFormIsComplete").checked = book.isComplete;
 };
 
 const saveEditBook = () => {
   if (!selectedEditBook) return;
   selectedEditBook.title = document.getElementById("bookFormTitle").value;
   selectedEditBook.author = document.getElementById("bookFormAuthor").value;
-  selectedEditBook.year = document.getElementById("bookFormYear").value;
-  selectedEditBook.isCompleted =
+  selectedEditBook.year = parseInt(
+    document.getElementById("bookFormYear").value
+  );
+  selectedEditBook.isComplete =
     document.getElementById("bookFormIsComplete").checked;
 
   document.dispatchEvent(new Event(RENDER_EVENT));
